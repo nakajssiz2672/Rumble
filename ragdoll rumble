@@ -1,0 +1,42 @@
+-- Long-Range Auto-Attack and Jump Boost Script
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+-- Settings for the jump boost
+local jumpBoost = 100  -- Jump boost amount
+local boostDuration = 5  -- Boost duration in seconds
+
+-- Settings for long-range auto-attack
+local attackRange = 50  -- Long range for detecting enemies
+local attackDamage = 10 -- Damage dealt per attack
+local attackCooldown = 1 -- Seconds between each auto-attack
+local lastAttackTime = 0 -- Track last attack time to prevent spamming
+
+-- Function to activate jump boost
+local function activateJumpBoost()
+    local originalJumpPower = humanoid.JumpPower
+    humanoid.JumpPower = originalJumpPower + jumpBoost
+    print("Jump boost activated!")
+    wait(boostDuration)
+    humanoid.JumpPower = originalJumpPower
+    print("Jump boost ended.")
+end
+
+-- Function to auto-attack nearby enemies
+local function autoAttack()
+    local currentTime = tick()
+    if currentTime - lastAttackTime < attackCooldown then
+        return -- Exit if the cooldown hasn't expired
+    end
+
+    lastAttackTime = currentTime -- Update last attack time
+    for _, enemy in ipairs(workspace:GetChildren()) do
+        if enemy:IsA("Model") and enemy:FindFirstChild("Humanoid") and enemy ~= character then
+            local enemyHumanoid = enemy:FindFirstChild("Humanoid")
+            local enemyRootPart = enemy:FindFirstChild("HumanoidRootPart")
+            local playerRootPart = character:FindFirstChild("HumanoidRootPart")
+
+            if enemyRootPart and playerRootPart then
+                local distance = (enemyRootPart.Position - playerRootPart.Position).magnitude
+                if distance <=
