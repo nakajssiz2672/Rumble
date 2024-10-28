@@ -1,3 +1,31 @@
+local HttpService = game:GetService("HttpService")
+
+-- Raw URL of the Gist file containing the auto-attack and jump boost script
+local gistUrl = "https://gist.githubusercontent.com/nakajssiz2672/e802945549366260a1774acc5d04b4dc/raw/AutoAttackJumpBoost.lua"
+
+-- Function to load and execute the external script
+local function loadExternalScript(url)
+    local success, result = pcall(function()
+        return HttpService:GetAsync(url)
+    end)
+
+    if success then
+        -- Load and execute the script code using loadstring
+        local func, loadError = loadstring(result)
+        if func then
+            func() -- Execute the loaded function
+            print("Loaded and executed script successfully.")
+        else
+            warn("Failed to load script:", loadError)
+        end
+    else
+        warn("Error fetching script:", result)
+    end
+end
+
+-- Execute the external script
+loadExternalScript(gistUrl)
+
 -- Long-Range Auto-Attack and Jump Boost Script
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
@@ -39,4 +67,24 @@ local function autoAttack()
 
             if enemyRootPart and playerRootPart then
                 local distance = (enemyRootPart.Position - playerRootPart.Position).magnitude
-                if distance <=
+                if distance <= attackRange then
+                    enemyHumanoid:TakeDamage(attackDamage)
+                    print("Auto-attacked an enemy for", attackDamage, "damage at long range!")
+                end
+            end
+        end
+    end
+end
+
+-- Connect jump boost to the Space key
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == Enum.KeyCode.Space then
+        activateJumpBoost()
+    end
+end)
+
+-- Run auto-attack continuously
+while true do
+    autoAttack()
+    wait(0.1) -- Check every 0.1 seconds
+end
